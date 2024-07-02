@@ -1,11 +1,8 @@
 import request from '@/utils/request'
+import axios from "axios";
 
 export function login(data) {
-  return request({
-    url: '/vue-element-admin/user/login',
-    method: 'post',
-    data
-  })
+  return axios.post('http://10.69.225.102:8090/GXK_System/gxkmethod/CheckPerson', data)
 }
 
 export function getInfo(token) {
@@ -19,6 +16,6 @@ export function getInfo(token) {
 export function logout() {
   return request({
     url: '/vue-element-admin/user/logout',
-    method: 'post'
+    method: 'post',
   })
 }

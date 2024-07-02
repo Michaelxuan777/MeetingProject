@@ -1,9 +1,33 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
-
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      autocomplete="on"
+      label-position="left"
+    >
       <div class="title-container">
-        <h3 class="title">Login Form</h3>
+        <h3 class="title">
+          历史办公文件查询系统
+        </h3>
+        <!--        <div style="text-align: center">-->
+        <!--          <el-button-->
+        <!--            type="primary"-->
+        <!--            @click="openOa()"-->
+        <!--          >-->
+        <!--            点击打开-->
+        <!--          </el-button>-->
+        <!--        </div>-->
+      </div>
+      <div
+        style="margin-top: 50px"
+        class="title-container"
+      >
+        <h3 class="title">
+          会议室申请
+        </h3>
       </div>
 
       <el-form-item prop="username">
@@ -13,7 +37,7 @@
         <el-input
           ref="username"
           v-model="loginForm.username"
-          placeholder="Username"
+          placeholder="请输入账户"
           name="username"
           type="text"
           tabindex="1"
@@ -21,7 +45,12 @@
         />
       </el-form-item>
 
-      <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
+      <el-tooltip
+        v-model="capsTooltip"
+        content="Caps lock is On"
+        placement="right"
+        manual
+      >
         <el-form-item prop="password">
           <span class="svg-container">
             <svg-icon icon-class="password" />
@@ -31,7 +60,7 @@
             ref="password"
             v-model="loginForm.password"
             :type="passwordType"
-            placeholder="Password"
+            placeholder="请输入密码"
             name="password"
             tabindex="2"
             autocomplete="on"
@@ -39,31 +68,31 @@
             @blur="capsTooltip = false"
             @keyup.enter.native="handleLogin"
           />
-          <span class="show-pwd" @click="showPwd">
+          <span
+            class="show-pwd"
+            @click="showPwd"
+          >
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
         </el-form-item>
       </el-tooltip>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
-
-      <div style="position:relative">
-        <div class="tips">
-          <span>Username : admin</span>
-          <span>Password : any</span>
-        </div>
-        <div class="tips">
-          <span style="margin-right:18px;">Username : editor</span>
-          <span>Password : any</span>
-        </div>
-
-        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">
-          Or connect with
-        </el-button>
-      </div>
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width:100%;margin-bottom:30px;"
+        @click.native.prevent="handleLogin"
+      >
+        登录
+      </el-button>
+      <!--      <div style="position:relative">-->
+      <!--      </div>-->
     </el-form>
 
-    <el-dialog title="Or connect with" :visible.sync="showDialog">
+    <el-dialog
+      title="Or connect with"
+      :visible.sync="showDialog"
+    >
       Can not be simulated on local, so please combine you own business simulation! ! !
       <br>
       <br>
@@ -82,23 +111,23 @@ export default {
   components: { SocialSign },
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
+      // if (!validUsername(value)) {
+      //   callback(new Error('请输入账户'))
+      // } else {
+      //   callback()
+      // }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
-      } else {
-        callback()
-      }
+      // if (value.length < 6) {
+      //   callback(new Error('请输入密码'))
+      // } else {
+      //   callback()
+      // }
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -138,6 +167,9 @@ export default {
     // window.removeEventListener('storage', this.afterQRScan)
   },
   methods: {
+    openOa(){
+      window.open('http://10.69.225.104:8092/ZTE_OAQ/oa-query.html')
+    },
     checkCapslock(e) {
       const { key } = e
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z')
@@ -153,22 +185,33 @@ export default {
       })
     },
     handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+            .then(response => {
+              if(response.status === 200){
+                // console.log(response)
+                this.$message({
+                  message: '欢迎登陆',
+                  type: 'success'
+                })
+                  sessionStorage.setItem('Admin', response.data.admin)
+                  sessionStorage.setItem('ClassId', response.data.class_id)
+                  sessionStorage.setItem('ClassName', response.data.class_name)
+                  sessionStorage.setItem('Name', response.data.name)
+                  sessionStorage.setItem('Pid',response.data.pid)
+                  sessionStorage.setItem('Account',response.data.account_number)
+                this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              }else{
+                this.$message({
+                  message: '账号或密码有误',
+                  type: 'warning'
+                })
+              }
               this.loading = false
             })
             .catch(() => {
               this.loading = false
             })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
     },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {

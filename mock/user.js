@@ -5,21 +5,48 @@ const tokens = {
   },
   editor: {
     token: 'editor-token'
+  },
+  class: {
+    token: 'class-token'
+  },
+  person: {
+    token: 'person-token'
+  },
+  met: {
+    token: 'met-token'
   }
 }
 
 const users = {
   'admin-token': {
     roles: ['admin'],
-    introduction: 'I am a super administrator',
+    introduction: '我是管理员',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-    name: 'Super Admin'
+    name: '管理员'
   },
   'editor-token': {
     roles: ['editor'],
     introduction: 'I am an editor',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
     name: 'Normal Editor'
+  },
+  'class-token': {
+    roles: ['class'],
+    introduction: '我是科室账号',
+    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    name: '科室账号'
+  },
+  'person-token': {
+    roles: ['person'],
+    introduction: '我是个人账号',
+    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    name: '个人账号'
+  },
+  'met-token': {
+    roles: ['met'],
+    introduction: '我是会议',
+    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+    name: '会议管理员账号'
   }
 }
 
@@ -54,7 +81,6 @@ module.exports = [
     response: config => {
       const { token } = config.query
       const info = users[token]
-
       // mock error
       if (!info) {
         return {

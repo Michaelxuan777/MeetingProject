@@ -1,10 +1,21 @@
 <template>
-  <el-dropdown trigger="click" @command="handleSetSize">
+  <el-dropdown
+    trigger="click"
+    @command="handleSetSize"
+  >
     <div>
-      <svg-icon class-name="size-icon" icon-class="size" />
+      <svg-icon
+        class-name="size-icon"
+        icon-class="size"
+      />
     </div>
     <el-dropdown-menu slot="dropdown">
-      <el-dropdown-item v-for="item of sizeOptions" :key="item.value" :disabled="size===item.value" :command="item.value">
+      <el-dropdown-item
+        v-for="item of sizeOptions"
+        :key="item.value"
+        :disabled="size===item.value"
+        :command="item.value"
+      >
         {{
           item.label }}
       </el-dropdown-item>
@@ -17,10 +28,10 @@ export default {
   data() {
     return {
       sizeOptions: [
-        { label: 'Default', value: 'default' },
-        { label: 'Medium', value: 'medium' },
-        { label: 'Small', value: 'small' },
-        { label: 'Mini', value: 'mini' }
+        { label: '默认', value: 'default' },
+        { label: '中等', value: 'medium' },
+        { label: '小', value: 'small' },
+        { label: '极小', value: 'mini' }
       ]
     }
   },

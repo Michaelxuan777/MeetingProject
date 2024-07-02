@@ -1,66 +1,154 @@
 <template>
   <div class="app-container">
-    <div v-if="user">
-      <el-row :gutter="20">
-
-        <el-col :span="6" :xs="24">
-          <user-card :user="user" />
-        </el-col>
-
-        <el-col :span="18" :xs="24">
-          <el-card>
-            <el-tabs v-model="activeTab">
-              <el-tab-pane label="Activity" name="activity">
-                <activity />
-              </el-tab-pane>
-              <el-tab-pane label="Timeline" name="timeline">
-                <timeline />
-              </el-tab-pane>
-              <el-tab-pane label="Account" name="account">
-                <account :user="user" />
-              </el-tab-pane>
-            </el-tabs>
-          </el-card>
-        </el-col>
-
-      </el-row>
-    </div>
+    <el-button
+      style="margin-bottom: 20px"
+      type="primary"
+      @click="dialog=true"
+    >
+      修改密码
+    </el-button>
+    <el-dialog
+      :title="text"
+      :visible.sync="dialog"
+      style="width: 100%;"
+      @close="closeDialog()"
+    >
+      <el-form
+        label-width="100px"
+      >
+        <el-row>
+          <el-col :span="9">
+            <el-form-item
+              label="账户"
+            >
+              <el-input
+                v-model="account"
+                placeholder="请输入人员名称"
+                readonly
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="9">
+            <el-form-item
+              label="原密码"
+            >
+              <el-input
+                v-model="origin_password"
+                placeholder="请输入原密码"
+                show-password
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="9">
+            <el-form-item
+              label="新密码"
+            >
+              <el-input
+                v-model="password"
+                placeholder="请输入新密码"
+                show-password
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          type="success"
+          @click="editPassword()"
+        >
+          修改密码
+        </el-button>
+        <el-button @click="dialog = false">
+          关闭
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import UserCard from './components/UserCard'
-import Activity from './components/Activity'
-import Timeline from './components/Timeline'
-import Account from './components/Account'
+import {AddPerson, EditPerson, GetAllClass, GetPerson} from "@/api/article";
+import axios from "axios";
 
 export default {
   name: 'Profile',
-  components: { UserCard, Activity, Timeline, Account },
   data() {
     return {
-      user: {},
-      activeTab: 'activity'
+      list:[],
+      text:'修改密码',
+      dialog:false,
+      account:'',
+      origin_password:'',
+      password:'',
+      editList:{}
     }
   },
   computed: {
-    ...mapGetters([
-      'name',
-      'avatar',
-      'roles'
-    ])
   },
   created() {
-    this.getUser()
+    // const listquery = {
+    //   status:'0'
+    // }
+    this.account = sessionStorage.getItem('Account')
+    // GetPerson(listquery).then(response => {
+    //   console.log(response)
+    //   if(response.data.data !== '无数据' ){
+    //     this.list = response.data.data
+    //   }
+    // })
   },
   methods: {
-    getUser() {
-      this.user = {
-        name: this.name,
-        role: this.roles.join(' | '),
-        email: 'admin@test.com',
-        avatar: this.avatar
+    closeDialog(){
+      this.dialog = false
+    },
+    editPassword(){
+      if(this.origin_password === '' || this.password === ''){
+        this.$message({
+          message:'原密码或新密码不能为空！',
+          type:'warning'
+        })
+      } else{
+        const user = {
+          account_number:this.account,
+          account_password:this.origin_password
+        }
+        axios.post('http://10.69.225.102:8090/GXK_System/gxkmethod/CheckPerson', user).then(responseData =>{
+          if(responseData.data.data !== '无数据'){
+            const list = {
+              'pid':sessionStorage.getItem('Pid'),
+              'class_id':'',
+              "status": '0'
+            }
+            GetPerson(list).then(response => {
+              if(response.data.data !== '无数据'){
+                this.editList = response.data.data[0]
+                this.editList.account_password = this.password
+                EditPerson(this.editList).then(res => {
+                  this.$message({
+                    message:'修改成功，下次登录生效！',
+                    type:'success'
+                  })
+                  this.password = ''
+                  this.origin_password = ''
+                  this.dialog = false
+                })
+              }
+            })
+          }else{
+            this.$message({
+              message: '原密码错误！',
+              type: 'warning'
+            })
+          }
+        })
       }
     }
   }
